@@ -1,0 +1,11 @@
+#including object files
+
+*.o
+
+#including temporary files
+
+*.log
+*.tmp
+*.swp
+
+.vscode
