@@ -10,7 +10,8 @@ public:
     void setNumUsers(int users) override;
 private:
     int numUsers;
-    void allocateSubChannels(FrequencyChannel& channel);
+    void allocateSubChannels(FrequencyChannel& channel, int userIndex);
+    double calculateThroughput(double subChannelSize);
 };
 
 #endif
