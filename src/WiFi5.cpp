@@ -1,38 +1,45 @@
 #include "WiFi5.h"
 #include <iostream>
+#include <cmath>
+
+WiFi5::WiFi5() : numUsers(0) {}
 
 void WiFi5::setNumUsers(int users) {
     numUsers = users;
 }
 
 double WiFi5::simulateCSI() {
-    return 0.2; // Simulate CSI packet transmission time (200 bytes = 0.2ms)
+    const double CSI_PACKET_SIZE = 200.0; // CSI packet size in bytes (200 bytes per user)
+    const double DATA_RATE_Mbps = 433.3;  // WiFi 5 data rate in Mbps
+    const double DATA_RATE_bps = DATA_RATE_Mbps * 1e6; // Convert to bits per second
+    
+    // Calculate CSI transmission time in seconds (200 bytes = 200 * 8 bits)
+    double timeForCSI = (CSI_PACKET_SIZE * 8) / DATA_RATE_bps;  // Time in seconds
+    return timeForCSI * 1000;  // Return time in milliseconds
 }
 
 void WiFi5::simulate(int numUsers) {
-    AccessPoint ap;
-    for (int i = 1; i <= numUsers; i++) {
-        ap.connectUser(User(i));  // Connecting users to the access point
-    }
+    // Step 1: Simulate CSI transmission for all users
+    double totalCSITransmissionTime = numUsers * simulateCSI(); // Time for all users' CSI transmission
 
-    double totalThroughput = 0;
-    double totalLatency = 0;
-    double maxLatency = 0;
+    // Step 2: Time for parallel transmission (fixed for all users)
+    const double parallelTransmissionTime = 15.0;  // Parallel communication time in ms
+    
+    // Step 3: Calculate total data transmitted during parallel transmission
+    double totalDataTransmitted = numUsers * 1024 * 8;  // Each user sends 1 KB of data (in bits)
 
-    std::cout << "Simulating WiFi 5 with " << numUsers << " users...\n";
-
-    for (int i = 0; i < numUsers; i++) {
-        double csiTime = simulateCSI(); // Simulate CSI time
-        double transmissionTime = 15.0; // Parallel communication time (ms)
-
-        totalThroughput += 15.0; // Assume 15 ms throughput per user
-        totalLatency += (csiTime + transmissionTime);
-        if ((csiTime + transmissionTime) > maxLatency) {
-            maxLatency = csiTime + transmissionTime;
-        }
-    }
-
-    std::cout << "Throughput: " << totalThroughput << " KB/ms\n";
-    std::cout << "Average Latency: " << totalLatency / numUsers << " ms\n";
-    std::cout << "Maximum Latency: " << maxLatency << " ms\n";
+    // Step 4: Calculate total time (CSI + parallel transmission)
+    double totalTime = totalCSITransmissionTime + parallelTransmissionTime;
+    
+    // Step 5: Calculate throughput (in Mbps)
+    double throughput = (totalDataTransmitted / 1e6) / parallelTransmissionTime;  // Throughput in Mbps
+    
+    // Step 6: Calculate average and maximum latency
+    double averageLatency = totalTime ;  // Average latency per user (rough estimate)
+    double maxLatency = totalTime;  // Max latency (since we assume all users transmit in parallel)
+    
+    // Output the results
+    std::cout << "Throughput: " << throughput << " Mbps" << std::endl;
+    std::cout << "Average Latency: " << averageLatency << " ms" << std::endl;
+    std::cout << "Maximum Latency: " << maxLatency << " ms" << std::endl;
 }

@@ -6,8 +6,11 @@
 
 class WiFi5 : public WiFi {
 public:
+    WiFi5();  // Constructor declaration
+
     void simulate(int numUsers) override;
     void setNumUsers(int users) override;
+
 private:
     int numUsers;
     double simulateCSI();
